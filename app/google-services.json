@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "697916126945",
+    "firebase_url": "https://fir-pagicnation-app.firebaseio.com",
+    "project_id": "fir-pagicnation-app",
+    "storage_bucket": "fir-pagicnation-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:697916126945:android:350ab3d0d32d44e4b429a0",
+        "android_client_info": {
+          "package_name": "com.nisith.firebasepagicnationapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "697916126945-4s77q8c6bivg11mh8le0ddb4k8659e1c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqqFd9NEW5Zy60KLW2cZD3KHVLFzMjYT8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "697916126945-4s77q8c6bivg11mh8le0ddb4k8659e1c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
