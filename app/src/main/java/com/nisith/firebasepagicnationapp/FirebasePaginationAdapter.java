@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 
@@ -12,14 +13,22 @@ import com.nisith.firebasepagicnationapp.Model.Message;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class FirebasePaginationAdapter extends RecyclerView.Adapter<FirebasePaginationAdapter.MyViewHolder> {
 
-    private List<Message> messageList;
 
-    public FirebasePaginationAdapter(List<Message> messageList){
+    public interface OnDeleteIconClickListener{
+        void onDeleteIconClick(Message message);
+    }
+
+    private List<Message> messageList;
+    private OnDeleteIconClickListener deleteIconClickListener;
+
+    public FirebasePaginationAdapter(AppCompatActivity appCompatActivity, List<Message> messageList){
         this.messageList = messageList;
+        this.deleteIconClickListener = (OnDeleteIconClickListener) appCompatActivity;
     }
 
 
@@ -44,11 +53,19 @@ public class FirebasePaginationAdapter extends RecyclerView.Adapter<FirebasePagi
         return totalItems;
     }
 
-    static class MyViewHolder extends RecyclerView.ViewHolder {
+    class MyViewHolder extends RecyclerView.ViewHolder {
         TextView messageTextView;
+        ImageView deleteImageView;
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             messageTextView = itemView.findViewById(R.id.message_text_view);
+            deleteImageView = itemView.findViewById(R.id.delete_image_view);
+            deleteImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                  deleteIconClickListener.onDeleteIconClick(messageList.get(getAdapterPosition()));
+                }
+            });
         }
     }
 }
