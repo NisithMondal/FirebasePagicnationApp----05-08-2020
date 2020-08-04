@@ -52,8 +52,6 @@ public class MainActivity extends AppCompatActivity implements FirebasePaginatio
     private final int pageSize = 10;
     private String lastMessageKey;
     private int index = 0;
-    private boolean isChildRemove1 =  false;
-    private boolean isChildRemove2 =  false;
     private String key = "";
     private String key1 = "";
 
@@ -85,17 +83,7 @@ public class MainActivity extends AppCompatActivity implements FirebasePaginatio
                  adapter.notifyDataSetChanged();
                  recyclerView.smoothScrollToPosition(adapter.getItemCount());
                  key = message.getMessageKey();
-                }else {
-                    Log.d("CVBN", "false  ");
-                    Log.d("CVBN", "isChildRemove1 =  "+isChildRemove1);
-
                 }
-                isChildRemove1 = false;
-                isChildRemove2 = false;
-                Log.d("CVBN", "initial onChildAdded() is called  "+message.getMessageKey().compareTo(key));
-                Log.d("CVBN", "initial message key =  "+message.getMessageKey());
-                Log.d("CVBN", "initial key = "+key);
-
             }
 
 
@@ -110,13 +98,7 @@ public class MainActivity extends AppCompatActivity implements FirebasePaginatio
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-//                Message message = snapshot.getValue(Message.class);
-//                if (messageList.contains(message)){
-//                    messageList.remove(message);
-//                    adapter.notifyDataSetChanged();
-//                    isChildRemove1 = true;
-//                    Log.d("CVBN", "onChildRemoved is called");
-//                }
+
             }
 
             @Override
@@ -143,11 +125,9 @@ public class MainActivity extends AppCompatActivity implements FirebasePaginatio
                             //  && message.getMessageKey().compareTo(key1)>0
                             if (!messageList.contains(message)){
                                 messageList.add(index,message);
+                                adapter.notifyItemInserted(index);
                                 index++;
                             }
-                            adapter.notifyDataSetChanged();
-                        isChildRemove1 = false;
-                        isChildRemove2 = false;
                     }
 
                     @Override
@@ -161,12 +141,7 @@ public class MainActivity extends AppCompatActivity implements FirebasePaginatio
 
                     @Override
                     public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-//                        Message message = snapshot.getValue(Message.class);
-//                        if (messageList.contains(message)){
-//                            messageList.remove(message);
-//                            adapter.notifyDataSetChanged();
-//                            isChildRemove2 = true;
-//                        }
+
                     }
 
                     @Override
@@ -200,13 +175,11 @@ public class MainActivity extends AppCompatActivity implements FirebasePaginatio
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 scrollOutItems = layoutManager.findFirstCompletelyVisibleItemPosition();
-                if (isScrolling && scrollOutItems == 0){
-//                    query();
+                if (isScrolling && scrollOutItems == 1){
                     if (messageList.size()>0) {
                         lastMessageKey = messageList.get(0).getMessageKey();
                         index = 0;
                         fetchMoreDataFromServer();
-                        Log.d("WERT","lastMessageKey"+lastMessageKey);
                     }
                     isScrolling = false;
                 }
@@ -230,17 +203,8 @@ public class MainActivity extends AppCompatActivity implements FirebasePaginatio
 
     private void sendMessageToFirebase(String message){
        final String messageKey = firebaseDatabaseRef.push().getKey();
-       firebaseDatabaseRef.child(messageKey).setValue(new Message(message,messageKey))
-               .addOnCompleteListener(new OnCompleteListener<Void>() {
-                   @Override
-                   public void onComplete(@NonNull Task<Void> task) {
-                       if (task.isSuccessful()){
-                           Log.d("ABCD","Push Key = "+messageKey);
-                       }else {
-                           Log.d("ABCD",task.getException().getMessage());
-                       }
-                   }
-               });
+       firebaseDatabaseRef.child(messageKey).setValue(new Message(message,messageKey));
+
     }
 
     private void setPaginationKey(){
@@ -262,67 +226,26 @@ public class MainActivity extends AppCompatActivity implements FirebasePaginatio
     }
 
 
-//    private void query(){
-//        if (lastMessageKey != null){
-//            firebaseDatabaseRef.orderByKey().endAt(lastMessageKey).limitToLast(pageSize + 1)
-//                    .addListenerForSingleValueEvent(new ValueEventListener() {
-//                        @Override
-//                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                            List<Message> list = new ArrayList<>();
-//                            int index = 0;
-//                            for (DataSnapshot child : snapshot.getChildren()){
-//                                if (index == 0 ) {
-//                                    lastMessageKey = child.getKey();
-//                                    index++;
-//                                }else {
-//                                    Message message = child.getValue(Message.class);
-//                                    message.setMessageKey(child.getKey());
-//                                    list.add(message);
-//                                }
-//                            }
-//                            if (list.size()>0) {
-//                                messageList.addAll(0, list);
-//                                adapter.notifyDataSetChanged();
-//                                recyclerView.smoothScrollToPosition((int) snapshot.getChildrenCount()+3);
-//                            }
-//                        }
-//                        @Override
-//                        public void onCancelled(@NonNull DatabaseError error) {
-//
-//                        }
-//                    });
-//        }else {
-//            setPaginationKey();
-//        }
-//
-//
-//    }
+
 
     @Override
     public void onDeleteIconClick(final Message message) {
         if (message != null){
-            isChildRemove1 = true;
-            isChildRemove2 = true;
-            Log.d("CVBN","onDeleteIconClick() is called");
             firebaseDatabaseRef.child(message.getMessageKey()).removeValue(new DatabaseReference.CompletionListener() {
                 @Override
                 public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
                     if (error == null){
                         messageList.remove(message);
                         adapter.notifyDataSetChanged();
-                    }else {
-                        isChildRemove1 = false;
-                        isChildRemove2 = false;
                     }
                 }
             });
         }
     }
 
-    /////////////////////////////////////////////////
     public static class SpeedyLinearLayoutManager extends LinearLayoutManager {
 
-        private static final float MILLISECONDS_PER_INCH = 5f; //default is 25f (bigger = slower)
+        private static final float MILLISECONDS_PER_INCH = 3f; //default is 25f (bigger = slower)
 
         public SpeedyLinearLayoutManager(Context context) {
             super(context);
